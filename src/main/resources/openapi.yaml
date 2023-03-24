@@ -1,0 +1,250 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8087
+    description: Generated server url
+tags:
+  - name: Card
+    description: Service Card
+paths:
+  /api/v1/card/:
+    get:
+      tags:
+        - Card
+      summary: Get all cards
+      operationId: findAllCards
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Card
+      summary: Update card
+      operationId: updateCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCardRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - Card
+      summary: Create a new card
+      operationId: createCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /api/v1/card/id/{id}:
+    get:
+      tags:
+        - Card
+      summary: Get a card by id
+      operationId: findCardById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not found
+  /api/v1/card/{id}:
+    delete:
+      tags:
+        - Card
+      summary: Delete card
+      operationId: deleteCard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json: {}
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    UpdateCardRequest:
+      required:
+        - amount
+        - amount_available
+        - client_id
+        - id_card
+        - main_account
+        - product_id
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Client id
+          example: 640bf4a36bf23c1c772da9d6
+        product_id:
+          type: string
+          description: Product id
+          example: 640c24cd3b905b25cfa2f25a
+        main_account:
+          type: string
+          description: Code main account
+          example: 640cc29c60650d1637e040a9
+        amount:
+          type: number
+          description: Amount card
+          example: 250
+        amount_available:
+          type: number
+          description: Amount available
+          example: 5000
+        associated_accounts:
+          type: array
+          description: Associated accounts
+          example: {}
+          items:
+            type: string
+            description: Associated accounts
+            example: '{}'
+        id_card:
+          type: string
+          description: Id card
+          example: 640d0e33ae8b8b50e2e61274
+    CardResponse:
+      required:
+        - amount
+        - amount_available
+        - client_id
+        - id_card
+        - main_account
+        - product_id
+        - register_date
+        - status
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Client id
+          example: 640bf4a36bf23c1c772da9d6
+        product_id:
+          type: string
+          description: Product id
+          example: 640c24cd3b905b25cfa2f25a
+        main_account:
+          type: string
+          description: Code main account
+          example: 640cc29c60650d1637e040a9
+        amount:
+          type: number
+          description: Amount card
+          example: 250
+        amount_available:
+          type: number
+          description: Amount available
+          example: 5000
+        associated_accounts:
+          type: array
+          description: Associated accounts
+          example: {}
+          items:
+            type: string
+            description: Associated accounts
+            example: '{}'
+        id_card:
+          type: string
+          description: Id card
+          example: 120cf999662f294fc1234567
+        register_date:
+          type: string
+          description: Register date
+          format: date-time
+          example: '2023-03-11T21:58:49.101Z'
+        status:
+          type: boolean
+          description: Status operation
+          example: true
+    CardRequest:
+      required:
+        - amount
+        - amount_available
+        - client_id
+        - main_account
+        - product_id
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Client id
+          example: 640bf4a36bf23c1c772da9d6
+        product_id:
+          type: string
+          description: Product id
+          example: 640c24cd3b905b25cfa2f25a
+        main_account:
+          type: string
+          description: Code main account
+          example: 640cc29c60650d1637e040a9
+        amount:
+          type: number
+          description: Amount card
+          example: 250
+        amount_available:
+          type: number
+          description: Amount available
+          example: 5000
+        associated_accounts:
+          type: array
+          description: Associated accounts
+          example: {}
+          items:
+            type: string
+            description: Associated accounts
+            example: '{}'
