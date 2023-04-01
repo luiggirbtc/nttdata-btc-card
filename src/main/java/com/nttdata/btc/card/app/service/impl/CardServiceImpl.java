@@ -12,7 +12,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -40,7 +42,8 @@ public class CardServiceImpl implements CardService {
     public Flux<CardResponse> findAll() {
         return repository.findAll().filter(Card::isStatus)
                 .map(entity -> buildCardR.apply(entity))
-                .onErrorReturn(new CardResponse());
+                .onErrorResume(e -> Flux.error(customException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
 
     /**
@@ -54,7 +57,8 @@ public class CardServiceImpl implements CardService {
         return repository.findById(id)
                 .filter(Card::isStatus)
                 .map(e -> buildCardR.apply(e))
-                .onErrorReturn(new CardResponse());
+                .onErrorResume(e -> Mono.error(customException(HttpStatus.BAD_REQUEST,
+                        HttpStatus.BAD_REQUEST.getReasonPhrase())));
     }
 
     /**
@@ -67,7 +71,8 @@ public class CardServiceImpl implements CardService {
     public Mono<CardResponse> save(CardRequest request) {
         return repository.save(buildCard.apply(request))
                 .flatMap(entity -> Mono.just(buildCardR.apply(entity)))
-                .onErrorReturn(new CardResponse());
+                .onErrorResume(e -> Mono.error(customException(HttpStatus.BAD_REQUEST,
+                        HttpStatus.BAD_REQUEST.getReasonPhrase())));
     }
 
     /**
@@ -80,7 +85,7 @@ public class CardServiceImpl implements CardService {
     public Mono<Void> delete(String id) {
         return repository.findById(id).filter(Card::isStatus)
                 .map(e -> updateStatus.apply(e, DEFAULT_FALSE))
-                .flatMap(e -> repository.delete(e));
+                .flatMap(e -> repository.save(e)).then();
     }
 
     /**
@@ -94,8 +99,9 @@ public class CardServiceImpl implements CardService {
         return repository.findById(request.getId_card())
                 .map(entity -> updateCard.apply(request, entity))
                 .flatMap(operation -> repository.save(operation))
-                .flatMap(cupdated -> Mono.just(buildCardR.apply(cupdated)))
-                .onErrorReturn(new CardResponse());
+                .flatMap(updated -> Mono.just(buildCardR.apply(updated)))
+                .onErrorResume(e -> Mono.error(customException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
 
     /**
@@ -141,4 +147,15 @@ public class CardServiceImpl implements CardService {
         response.setStatus(entity.isStatus());
         return response;
     };
+
+    /**
+     * Method CUSTOM exception.
+     *
+     * @param status  {@link HttpStatus}
+     * @param message {@link String}
+     * @return {@link ResponseStatusException}
+     */
+    private ResponseStatusException customException(HttpStatus status, String message) {
+        return new ResponseStatusException(status, message);
+    }
 }
